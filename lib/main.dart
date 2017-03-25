@@ -46,7 +46,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  PageController _controller = new PageController();
+  PageController _pageController = new PageController();
+  /*TabController _tabController = new TabController(
+    length: 2,
+    vsync: ,
+  );*/
 
   @override
   Widget build(BuildContext context) {
@@ -62,17 +66,22 @@ class _MyHomePageState extends State<MyHomePage> {
         // was created by the App.build method, and use it to set
         // our appbar title.
         title: new Text(config.title),
-
-        actions: <Widget>[
-          new IconButton(
-              icon: new Icon(Icons.add),
-              onPressed: null, // TODO: implement onPressed to create new lists
-              tooltip: 'New List',
-          ),
-        ],
+        bottom: new TabBar(
+          tabs: <Widget> [
+            new Tab(
+              text: 'Lists',
+              icon: new Icon(Icons.dehaze),
+            ),
+            new Tab(
+              text: 'Schedule',
+              icon: new Icon(Icons.event),
+            )
+          ],
+          indicatorColor: Colors.red[500],
+        ),
       ),
       body: new PageView(
-          controller: _controller,
+          controller: _pageController,
           physics: new PageScrollPhysics(),
           children: <Widget>[
             new Center(
@@ -83,18 +92,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
       ),
-        bottomNavigationBar: new BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              new BottomNavigationBarItem (
-                  icon: new Icon(Icons.dehaze),
-                  title: new Text('Lists'),
-              ),
-              new BottomNavigationBarItem (
-                  icon: new Icon(Icons.event),
-                  title: new Text('Schedule'),
-              ),
-            ],
-          //onTap: changePage<int>(this.currentIndex),
+        floatingActionButton: new FloatingActionButton(
+            onPressed: null,
+            child: new Icon(Icons.add),
         ),
     );
   }
