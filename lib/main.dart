@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(title: 'Andrea\'s Lists'),
+      //showPerformanceOverlay: true,
     );
   }
 }
@@ -45,12 +46,42 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  PageController _pageController = new PageController();
-  /*TabController _tabController = new TabController(
-    length: 2,
-    vsync: ,
-  );*/
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+  final List<Tab> myTabs = <Tab>[
+    new Tab(
+      text: 'Lists',
+      icon: new Icon(Icons.dehaze),
+    ),
+    new Tab(
+      text: 'Schedule',
+      icon: new Icon(Icons.event),
+    )
+  ];
+
+  List<EventItem> myLists = [
+    new EventItem(title: "Hello", date: new DateTime.now()),
+    new EventItem(title: "World", date: new DateTime.now()),
+    new EventItem(title: "DEADBEEF", date: new DateTime.now()),
+  ];
+  List<EventItem> mySchedule = [
+    new EventItem(title: "Hello", date: new DateTime.now()),
+    new EventItem(title: "World", date: new DateTime.now()),
+    new EventItem(title: "DEADBEEF", date: new DateTime.now()),
+  ];
+
+  TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = new TabController(vsync: this, length: myTabs.length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,42 +98,107 @@ class _MyHomePageState extends State<MyHomePage> {
         // our appbar title.
         title: new Text(config.title),
         bottom: new TabBar(
-          tabs: <Widget> [
-            new Tab(
-              text: 'Lists',
-              icon: new Icon(Icons.dehaze),
-            ),
-            new Tab(
-              text: 'Schedule',
-              icon: new Icon(Icons.event),
-            )
-          ],
-          indicatorColor: Colors.red[500],
+          controller: _tabController,
+          tabs: myTabs,
         ),
       ),
-      body: new PageView(
-          controller: _pageController,
-          physics: new PageScrollPhysics(),
-          children: <Widget>[
-            new Center(
-              child: new Text("Page 0"),
-            ),
-            new Center(
-              child: new Text("Page 1"),
-            ),
+      body: new TabBarView(
+          controller: _tabController,
+          children: <Widget> [
+            new MyLists(myLists),
+            new MySchedule(mySchedule),
           ],
       ),
         floatingActionButton: new FloatingActionButton(
-            onPressed: null,
+            onPressed: floatingActionButtonOnPress(),
             child: new Icon(Icons.add),
         ),
     );
   }
 
-  void changePage<int>(int value) {
-    _controller.animateToPage(value);
-    //print('Page Changed');
-    return;
+  void floatingActionButtonOnPress() {
+    // TODO: Implement onPressed
   }
 }
 
+class EventItem {
+  EventItem({@required this.title, this.date});
+
+  String title;
+  DateTime date;
+
+  bool hasDate() {
+    return date == null;
+  }
+
+  void setDate(DateTime date) {
+    this.date = date;
+  }
+}
+
+/*
+class MySchedule extends StatefulWidget {
+  MySchedule({Key key, this.lists}) : super(key: key);
+
+  final List<EventItem> schedule;
+
+  @override
+  _MyScheduleState createState() => new _MyScheduleState();
+}*/
+
+class MySchedule extends StatelessWidget {
+  MySchedule(this.schedule);
+
+  List<EventItem> schedule;
+
+  List<Widget> getTodaySchedule() {
+    List<Widget> todaySchedule = [new ListTile(title: new Center(child: new Text("Today")))];
+
+    todaySchedule.addAll(
+        schedule.map((EventItem event) {
+          if(event.date.day == new DateTime.now().day &&
+              event.date.month == new DateTime.now().month &&
+              event.date.year == new DateTime.now().year) {
+            return new ListTile(
+                title: new Text(event.title),
+                subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
+                onTap: null,
+            );
+          }
+        }).toList()
+    );
+
+    return todaySchedule;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView(
+      children: <Widget>[
+        new Card(
+          child: new Column(
+            children: getTodaySchedule(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class MyLists extends StatelessWidget {
+  MyLists(this.myLists);
+
+  List<EventItem> myLists;
+
+  Widget build(BuildContext context) {
+    return new ListView(
+      children: myLists.map((EventItem event) {
+        return new ListTile(
+          title: new Text(event.title),
+          subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
+          onTap: null,
+        );
+      }).toList(),
+    );
+  }
+}
