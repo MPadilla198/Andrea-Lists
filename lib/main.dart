@@ -186,7 +186,7 @@ class MySchedule extends StatelessWidget {
 	  DateTime today = new DateTime.now();
 	  
     List<Widget> todaySchedule = [
-      new ListTile(title: new Center(child: new Text("Today's Schedule"))),
+      new ListTile(title: new Center(child: new Text("Today's Schedules"))),
     ];
 
     todaySchedule.addAll(schedule.map((EventItem event) {
@@ -210,13 +210,13 @@ class MySchedule extends StatelessWidget {
 		DateTime beginLastWeek = new DateTime.now().subtract(new Duration(days: 7));
 		
 		List<Widget> pastWeekSchedule = [
-			new ListTile(title: new Center(child: new Text("Past Week's Schedule"))),
+			new ListTile(title: new Center(child: new Text("Past Week Schedules"))),
 		];
 		
-		pastWeekSchedule.addAll(schedule.map((EventItem event) { // TODO: Fix this shit below!!!!! The if statement is not right to be for the past week!!!!!
-      		if (event.date.day == new today.day &&
-          	event.date.month == new today.month &&
-          	event.date.year == new today.year) {
+		pastWeekSchedule.addAll(schedule.map((EventItem event) {
+      		if (event.date.day < new today.day && event.date.day >= beginLastWeek.day &&
+          	event.date.month < new today.month && event.date.month >= beginLastWeek.month &&
+          	event.date.year < new today.year && event.date.year >= beginLastWeek.year) {
         		return new ListTile(
           			title: new Text(event.title),
           			subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
@@ -226,6 +226,28 @@ class MySchedule extends StatelessWidget {
     	}).toList());
 		
 		return pastWeekSchedule;
+	}
+	
+	List<Widget> getPastWeekSchedule() {
+		DateTime beginLastWeek = new DateTime.now().subtract(newDuration(days: 7));
+		
+		List<Widget> olderSchedule = [
+			new ListTile(title: new Center(child: new Text("Older Schedules"))),
+		];
+		
+		olderSchedule.addAll(schedule.map((EventItem event) {
+			if (event.date.day < beginLastWeek.day &&
+				event.date.month < beginLastWeek.month &&
+				event.date.year < beginLastWeek.year) {
+				return new ListTile(
+					title: new Text(event.title),
+					subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
+					onTap: null,
+				);
+			}
+		}).toList());
+		
+		return olderSchedule;
 	}
 
   @override
