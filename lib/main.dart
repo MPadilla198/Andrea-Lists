@@ -127,6 +127,17 @@ class _MyHomePageState extends State<MyHomePage>
             setState(() {
               myLists.add(newListName);
             });
+			  
+			listItems[newListName] = new List();
+            
+            Navigator.of(context).push(new MaterialPageRoute<List<MyListItem>>(
+              builder: (BuildContext) {
+                return new ListPage(
+                  listItems: listItems[newListItems],
+                  title: newListName.title,
+                 )
+              }
+            )
           }
         },
         child: new Icon(Icons.add),
@@ -143,19 +154,45 @@ class EventItem {
 }
 
 class MySchedule extends StatelessWidget {
-  MySchedule(this.schedule);
+  MySchedule(this.schedule, this.listItems, this.onListItemChanged);
 
   List<EventItem> schedule;
+  Map<EventItem, List<MyListItem>> listItems;
+  ListItemsChangedCallback onListItemChanged;
+	
+  List<Widget> getFutureSchedule() {
+	  DateTime tomorrow = new DateTime.now().add(new Duration(days: 1));
+	  
+	  List<Widget> futureSchedule = [
+		  new ListTile(title: new Center(child: new Text("Future Schedules"))),
+	  ];
+	  
+	  futureSchedule.addAll(schedule.map((EventItem event) {
+		  if (event.date.day >= tomorrow.day &&
+			  event.date.month >= tomorrow.month &&
+			  event.date.year >= tomorrow.year) {
+			  return new ListTile(
+				  title: new Text(event.title),
+				  subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
+				  onTap: null,
+			  );
+		  }
+	  }).toList());
+	  
+	  return futureSchedule;
+  }
 
   List<Widget> getTodaySchedule() {
+	  DateTime today = new DateTime.now();
+	  
     List<Widget> todaySchedule = [
-      new ListTile(title: new Center(child: new Text("Today")))
+      new ListTile(title: new Center(child: new Text("Today's Schedule"))),
     ];
 
     todaySchedule.addAll(schedule.map((EventItem event) {
-      if (event.date.day == new DateTime.now().day &&
-          event.date.month == new DateTime.now().month &&
-          event.date.year == new DateTime.now().year) {
+      if (event.date.day == new today.day &&
+          event.date.month == new today.month &&
+          event.date.year == new today.year) {
         return new ListTile(
           title: new Text(event.title),
           subtitle: new Text(
@@ -167,6 +204,29 @@ class MySchedule extends StatelessWidget {
 
     return todaySchedule;
   }
+	
+	List<Widget> getPastWeekSchedule() {
+		DateTime today = new DateTime.now();
+		DateTime beginLastWeek = new DateTime.now().subtract(new Duration(days: 7));
+		
+		List<Widget> pastWeekSchedule = [
+			new ListTile(title: new Center(child: new Text("Past Week's Schedule"))),
+		];
+		
+		pastWeekSchedule.addAll(schedule.map((EventItem event) { // TODO: Fix this shit below!!!!! The if statement is not right to be for the past week!!!!!
+      		if (event.date.day == new today.day &&
+          	event.date.month == new today.month &&
+          	event.date.year == new today.year) {
+        		return new ListTile(
+          			title: new Text(event.title),
+          			subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
+          			onTap: null,
+        		);
+      		}
+    	}).toList());
+		
+		return pastWeekSchedule;
+	}
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +237,11 @@ class MySchedule extends StatelessWidget {
             children: getTodaySchedule(),
           ),
         ),
+		new Card(
+			child: new Column(
+				children: getFutureSchedule(),
+			),
+		),
       ],
     );
   }
