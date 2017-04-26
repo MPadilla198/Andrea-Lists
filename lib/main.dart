@@ -228,7 +228,7 @@ class MySchedule extends StatelessWidget {
 		return pastWeekSchedule;
 	}
 	
-	List<Widget> getPastWeekSchedule() {
+	List<Widget> getOlderSchedule() {
 		DateTime beginLastWeek = new DateTime.now().subtract(newDuration(days: 7));
 		
 		List<Widget> olderSchedule = [
@@ -262,6 +262,16 @@ class MySchedule extends StatelessWidget {
 		new Card(
 			child: new Column(
 				children: getFutureSchedule(),
+			),
+		),
+	      	new Card(
+			child: new Column(
+				children: getPastWeekSchedule(),
+			),
+		),
+	      	new Card(
+			child: new Column(
+				children: getOlderSchedule(),
 			),
 		),
       ],
@@ -525,7 +535,7 @@ class _ListPageState extends State<ListPage> {
                       child: new Text("ADD"),
                       onPressed: () {
                         if (_newListItemName != null) {
-                          setState(() {
+				  setState(() {
                             myListItems
                                 .add(new MyListItem(title: _newListItemName));
                           });
