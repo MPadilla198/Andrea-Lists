@@ -249,6 +249,10 @@ class MySchedule extends StatelessWidget {
 		
 		return olderSchedule;
 	}
+	
+	void scheduleItemOnTap() async {
+		List<MyListItem> newListOfList = await Navigator // TODO: Finish this method
+	}
 
   @override
   Widget build(BuildContext context) {
