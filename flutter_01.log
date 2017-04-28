@@ -1,0 +1,88 @@
+Flutter crash report; please file at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run
+
+## exception
+
+String: Exit code 1 from: C:\Users\Miguel\AppData\Local\Android\sdk\platform-tools\adb -s 1215fcc16a431d05 shell pm list packages com.yourcompany.AndreaLists
+
+```
+#0      _runWithLoggingSync (package:flutter_tools/src/base/process.dart:311)
+#1      runCheckedSync (package:flutter_tools/src/base/process.dart:233)
+#2      AndroidDevice.isAppInstalled (package:flutter_tools/src/android/android_device.dart:214)
+#3      AndroidDevice._installLatestApp (package:flutter_tools/src/android/android_device.dart:266)
+#4      AndroidDevice.startApp (package:flutter_tools/src/android/android_device.dart:328)
+<asynchronous suspension>
+#5      HotRunner.run (package:flutter_tools/src/run_hot.dart:202)
+<asynchronous suspension>
+#6      RunCommand.runCommand (package:flutter_tools/src/commands/run.dart:291)
+<asynchronous suspension>
+#7      FlutterCommand.verifyThenRunCommand (package:flutter_tools/src/runner/flutter_command.dart:151)
+<asynchronous suspension>
+#8      RunCommand.verifyThenRunCommand (package:flutter_tools/src/commands/run.dart:205)
+<asynchronous suspension>
+#9      FlutterCommand.run (package:flutter_tools/src/runner/flutter_command.dart:121)
+#10     CommandRunner.runCommand (package:args/command_runner.dart:194)
+<asynchronous suspension>
+#11     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:262)
+<asynchronous suspension>
+#12     CommandRunner.run.<anonymous closure> (package:args/command_runner.dart:109)
+#13     Future.Future.sync (dart:async/future.dart:208)
+#14     CommandRunner.run (package:args/command_runner.dart:109)
+#15     FlutterCommandRunner.run (package:flutter_tools/src/runner/flutter_command_runner.dart:157)
+#16     run.<anonymous closure> (package:flutter_tools/executable.dart:140)
+<asynchronous suspension>
+#17     AppContext._run (package:flutter_tools/src/base/context.dart:76)
+<asynchronous suspension>
+#18     AppContext.runInZone.<anonymous closure> (package:flutter_tools/src/base/context.dart:66)
+#19     _rootRun (dart:async/zone.dart:1120)
+#20     _CustomZone.run (dart:async/zone.dart:1001)
+#21     runZoned (dart:async/zone.dart:1465)
+#22     AppContext.runInZone (package:flutter_tools/src/base/context.dart:65)
+#23     run (package:flutter_tools/executable.dart:113)
+<asynchronous suspension>
+#24     main (package:flutter_tools/executable.dart:66)
+<asynchronous suspension>
+#25     main (file:///C:/Users/Miguel/flutter/packages/flutter_tools/bin/flutter_tools.dart:8)
+#26     _startIsolate.<anonymous closure> (dart:isolate-patch/isolate_patch.dart:263)
+#27     _RawReceivePortImpl._handleMessage (dart:isolate-patch/isolate_patch.dart:151)
+```
+
+## flutter doctor
+
+```
+[✓] Flutter (on Microsoft Windows [Version 10.0.14393], channel master)
+    • Flutter at C:\Users\Miguel\flutter
+    • Framework revision 311d35354a (8 days ago), 2017-04-19 18:45:14 -0700
+    • Engine revision a5b64899c9
+    • Tools Dart version 1.23.0-dev.11.7
+
+[✓] Host Executable Compatibility
+    • Downloaded executables execute on host
+
+[✓] Android toolchain - develop for Android devices (Android SDK 25.0.2)
+    • Android SDK at C:\Users\Miguel\AppData\Local\Android\sdk
+    • Platform android-25, build-tools 25.0.2
+    • Java binary at: C:\Program Files\Android\Android Studio\jre\bin\java
+    • Java version: OpenJDK Runtime Environment (build 1.8.0_112-release-b06)
+
+[✓] Android Studio (version 2.3)
+    • Android Studio at C:\Program Files\Android\Android Studio
+    • Gradle version 3.2
+    • Java version: OpenJDK Runtime Environment (build 1.8.0_112-release-b06)
+
+[✓] IntelliJ IDEA Community Edition (version 2016.3)
+    • Dart plugin version 163.13137
+    • Flutter plugin version 12.1
+
+[-] WebStorm (version 2016.2)
+    • Flutter plugin not installed; this adds Flutter specific functionality.
+    • For information about managing plugins, see
+      https://www.jetbrains.com/help/idea/managing-plugins.html
+
+[✓] Connected devices
+    • SM N920T • 1215fcc16a431d05 • android-arm • Android 7.0 (API 24) (emulator)
+
+```

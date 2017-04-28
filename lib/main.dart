@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 void main() {
   runApp(new MaterialApp(
@@ -65,8 +66,9 @@ class _MyHomePageState extends State<MyHomePage>
   ];
   List<EventItem> mySchedule = [
     new EventItem(title: "Hello", date: new DateTime.now()),
-    new EventItem(title: "World", date: new DateTime.now()),
-    new EventItem(title: "DEADBEEF", date: new DateTime.now()),
+    new EventItem(title: "World", date: new DateTime.now().add(new Duration(days: 3))),
+    new EventItem(title: "DEADBEEF", date: new DateTime.now().subtract(new Duration(days: 4))),
+    new EventItem(title: "Just testies", date: new DateTime.now().subtract(new Duration(days: 12))),
   ];
 
   TabController _tabController;
@@ -111,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage>
         controller: _tabController,
         children: <Widget>[
           new MyLists(myLists, listItems, _handleListItemsChanged),
-          new MySchedule(mySchedule),
+          new MySchedule(mySchedule, listItems, _handleListItemsChanged),
         ],
       ),
       floatingActionButton: new FloatingActionButton(
@@ -127,17 +129,16 @@ class _MyHomePageState extends State<MyHomePage>
             setState(() {
               myLists.add(newListName);
             });
-			  
-			listItems[newListName] = new List();
-            
+
+            listItems[newListName] = new List();
+
             Navigator.of(context).push(new MaterialPageRoute<List<MyListItem>>(
-              builder: (BuildContext) {
-                return new ListPage(
-                  listItems: listItems[newListItems],
-                  title: newListName.title,
-                 )
-              }
-            )
+                builder: (BuildContext context) {
+              return new ListPage(
+                listItems: listItems[newListName],
+                listTitle: newListName.title,
+              );
+            }));
           }
         },
         child: new Icon(Icons.add),
@@ -159,103 +160,126 @@ class MySchedule extends StatelessWidget {
   List<EventItem> schedule;
   Map<EventItem, List<MyListItem>> listItems;
   ListItemsChangedCallback onListItemChanged;
-	
-  List<Widget> getFutureSchedule() {
-	  DateTime tomorrow = new DateTime.now().add(new Duration(days: 1));
-	  
-	  List<Widget> futureSchedule = [
-		  new ListTile(title: new Center(child: new Text("Future Schedules"))),
-	  ];
-	  
-	  futureSchedule.addAll(schedule.map((EventItem event) {
-		  if (event.date.day >= tomorrow.day &&
-			  event.date.month >= tomorrow.month &&
-			  event.date.year >= tomorrow.year) {
-			  return new ListTile(
-				  title: new Text(event.title),
-				  subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
-				  onTap: null,
-			  );
-		  }
-	  }).toList());
-	  
-	  return futureSchedule;
-  }
 
-  List<Widget> getTodaySchedule() {
-	  DateTime today = new DateTime.now();
-	  
-    List<Widget> todaySchedule = [
-      new ListTile(title: new Center(child: new Text("Today's Schedules"))),
-    ];
+  // Instantiation of all necessary DateTimes
+  DateTime tomorrow = new DateTime.now().add(new Duration(days: 1));
+  DateTime today = new DateTime.now();
+  DateTime beginLastWeek = new DateTime.now().subtract(new Duration(days: 7));
 
-    todaySchedule.addAll(schedule.map((EventItem event) {
-      if (event.date.day == new today.day &&
-          event.date.month == new today.month &&
-          event.date.year == new today.year) {
-        return new ListTile(
-          title: new Text(event.title),
-          subtitle: new Text(
-              "${event.date.month}/${event.date.day}/${event.date.year}"),
-          onTap: null,
+  Future scheduleItemOnTap(EventItem event, BuildContext context) async {
+    List<MyListItem> newListOfList = await Navigator.of(context).push(new MaterialPageRoute<List<MyListItem>>(
+      builder: ((BuildContext context) {
+        return new ListPage(
+            listItems: /*itemLists[event]*/ <MyListItem>[
+              new MyListItem(title: "Hello"),
+              new MyListItem(title: "World"),
+              new MyListItem(title: "Hello"),
+            ],
+          listTitle: event.title,
         );
-      }
-    }).toList());
+      }),
+    )); // TODO: Finish this method
 
-    return todaySchedule;
+    onListItemChanged(event, newListOfList);
   }
-	
-	List<Widget> getPastWeekSchedule() {
-		DateTime today = new DateTime.now();
-		DateTime beginLastWeek = new DateTime.now().subtract(new Duration(days: 7));
-		
-		List<Widget> pastWeekSchedule = [
-			new ListTile(title: new Center(child: new Text("Past Week Schedules"))),
-		];
-		
-		pastWeekSchedule.addAll(schedule.map((EventItem event) {
-      		if (event.date.day < new today.day && event.date.day >= beginLastWeek.day &&
-          	event.date.month < new today.month && event.date.month >= beginLastWeek.month &&
-          	event.date.year < new today.year && event.date.year >= beginLastWeek.year) {
-        		return new ListTile(
-          			title: new Text(event.title),
-          			subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
-          			onTap: null,
-        		);
-      		}
-    	}).toList());
-		
-		return pastWeekSchedule;
-	}
-	
-	List<Widget> getOlderSchedule() {
-		DateTime beginLastWeek = new DateTime.now().subtract(newDuration(days: 7));
-		
-		List<Widget> olderSchedule = [
-			new ListTile(title: new Center(child: new Text("Older Schedules"))),
-		];
-		
-		olderSchedule.addAll(schedule.map((EventItem event) {
-			if (event.date.day < beginLastWeek.day &&
-				event.date.month < beginLastWeek.month &&
-				event.date.year < beginLastWeek.year) {
-				return new ListTile(
-					title: new Text(event.title),
-					subtitle: new Text("${event.date.month}/${event.date.day}/${event.date.year}"),
-					onTap: null,
-				);
-			}
-		}).toList());
-		
-		return olderSchedule;
-	}
-	
-	void scheduleItemOnTap() async {
-		List<MyListItem> newListOfList = await Navigator // TODO: Finish this method
-	}
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> getFutureSchedule() {
+      List<Widget> futureSchedule = [
+        new ListTile(title: new Center(child: new Text("Future Schedules"))),
+      ];
+
+      futureSchedule.addAll(schedule.map((EventItem event) {
+        if (event.date.day >= tomorrow.day &&
+            event.date.month >= tomorrow.month &&
+            event.date.year >= tomorrow.year) {
+          return new ListTile(
+              title: new Text(event.title),
+              subtitle: new Text(
+                  "${event.date.month}/${event.date.day}/${event.date.year}"),
+              onTap: (){scheduleItemOnTap(event, context);},
+          );
+        }
+      }).toList());
+
+      futureSchedule.removeWhere((Widget event) => event == null);
+
+      return futureSchedule;
+    }
+
+    List<Widget> getTodaySchedule() {
+      List<Widget> todaySchedule = [
+        new ListTile(title: new Center(child: new Text("Today's Schedules"))),
+      ];
+
+      todaySchedule.addAll(schedule.map((EventItem event) {
+        if (event.date.day == today.day &&
+            event.date.month == today.month &&
+            event.date.year == today.year) {
+          return new ListTile(
+              title: new Text(event.title),
+              subtitle: new Text(
+                  "${event.date.month}/${event.date.day}/${event.date.year}"),
+              onTap: (){scheduleItemOnTap(event, context);},
+          );
+        }
+      }).toList());
+
+      todaySchedule.removeWhere((Widget widget) => widget == null);
+
+      return todaySchedule;
+    }
+
+    List<Widget> getPastWeekSchedule() {
+      List<Widget> pastWeekSchedule = [
+        new ListTile(title: new Center(child: new Text("Past Week Schedules"))),
+      ];
+
+      pastWeekSchedule.addAll(schedule.map((EventItem event) {
+        if (event.date.day < today.day &&
+            event.date.day >= beginLastWeek.day &&
+            event.date.month <= today.month &&
+            event.date.month >= beginLastWeek.month &&
+            event.date.year <= today.year &&
+            event.date.year >= beginLastWeek.year) {
+          return new ListTile(
+              title: new Text(event.title),
+              subtitle: new Text(
+                  "${event.date.month}/${event.date.day}/${event.date.year}"),
+              onTap: (){scheduleItemOnTap(event, context);},
+          );
+        }
+      }).toList());
+
+      pastWeekSchedule.removeWhere((Widget widget) => widget == null);
+
+      return pastWeekSchedule;
+    }
+
+    List<Widget> getOlderSchedule() {
+      List<Widget> olderSchedule = [
+        new ListTile(title: new Center(child: new Text("Older Schedules"))),
+      ];
+
+      olderSchedule.addAll(schedule.map((EventItem event) {
+        if (event.date.day < beginLastWeek.day &&
+            event.date.month <= beginLastWeek.month &&
+            event.date.year <= beginLastWeek.year) {
+          return new ListTile(
+              title: new Text(event.title),
+              subtitle: new Text(
+                  "${event.date.month}/${event.date.day}/${event.date.year}"),
+              onTap: (){scheduleItemOnTap(event, context);},
+          );
+        }
+      }).toList());
+
+      olderSchedule.removeWhere((Widget widget) => widget == null);
+
+      return olderSchedule;
+    }
+
     return new ListView(
       children: <Widget>[
         new Card(
@@ -263,21 +287,21 @@ class MySchedule extends StatelessWidget {
             children: getTodaySchedule(),
           ),
         ),
-		new Card(
-			child: new Column(
-				children: getFutureSchedule(),
-			),
-		),
-	      	new Card(
-			child: new Column(
-				children: getPastWeekSchedule(),
-			),
-		),
-	      	new Card(
-			child: new Column(
-				children: getOlderSchedule(),
-			),
-		),
+        new Card(
+          child: new Column(
+            children: getFutureSchedule(),
+          ),
+        ),
+        new Card(
+          child: new Column(
+            children: getPastWeekSchedule(),
+          ),
+        ),
+        new Card(
+          child: new Column(
+            children: getOlderSchedule(),
+          ),
+        ),
       ],
     );
   }
@@ -440,7 +464,7 @@ class _NewListPageState extends State<NewListPage> {
       ),
     );
   }
-} 
+}
 
 //TODO: Everything below this comment (It creates a page that allows the user to view the items within their individual lists
 // NOTE: Code below is mostly borrowed from https://flutter.io/widgets-intro/ .
@@ -539,7 +563,7 @@ class _ListPageState extends State<ListPage> {
                       child: new Text("ADD"),
                       onPressed: () {
                         if (_newListItemName != null) {
-				  setState(() {
+                          setState(() {
                             myListItems
                                 .add(new MyListItem(title: _newListItemName));
                           });
