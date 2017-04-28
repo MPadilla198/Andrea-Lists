@@ -185,10 +185,10 @@ class MySchedule extends StatelessWidget {
       List<Widget> futureSchedule = new List<Widget>();
 
       futureSchedule.addAll(schedule.map((EventItem event) {
-        if (event.date.isAfter(today) &&
-            (event.date.day >= tomorrow.day ||
-            (event.date.month > tomorrow.month &&
-            event.date.year >= tomorrow.year))) {
+        if ((event.date.isAfter(today) &&
+            event.date.day >= tomorrow.day) ||
+            (event.date.month > today.month &&
+            event.date.year >= today.year)) {
           return new ListTile(
               title: new Text(event.title),
               subtitle: new Text(
