@@ -76,6 +76,20 @@ class _MyHomePageState extends State<MyHomePage>
   void _handleListItemsChanged(EventItem event, List<MyListItem> list) {
     listItems[event] = list;
   }
+	
+	void _switchGeneralToSchedule(EventItem event) {
+		setState(() {
+			myLists.remove(event);
+			mySchedule.add(event);
+		});
+	}
+	
+	void _switchScheduleToGeneral(EventItem event) {
+		setState(() {
+			mySchedule.remove(event);
+			myLists.add(event);
+		});
+	}
 
   @override
   void initState() {
@@ -112,8 +126,8 @@ class _MyHomePageState extends State<MyHomePage>
       body: new TabBarView(
         controller: _tabController,
         children: <Widget>[
-          new MyLists(myLists, listItems, _handleListItemsChanged),
-          new MySchedule(mySchedule, listItems, _handleListItemsChanged),
+          new MyLists(myLists, listItems, _handleListItemsChanged, _switchGeneralToSchedule),
+          new MySchedule(mySchedule, listItems, _handleListItemsChanged, _switchScheduleToGeneral),
         ],
       ),
       floatingActionButton: new FloatingActionButton(
@@ -155,11 +169,12 @@ class EventItem {
 }
 
 class MySchedule extends StatelessWidget {
-  MySchedule(this.schedule, this.listItems, this.onListItemChanged);
+  MySchedule(this.schedule, this.listItems, this.onListItemChanged, this.switchScheduleToGeneral);
 
   List<EventItem> schedule;
   Map<EventItem, List<MyListItem>> listItems;
   ListItemsChangedCallback onListItemChanged;
+	GeneralScheduleSwitch switchScheduleToGeneral;
 
   // Instantiation of all necessary DateTimes
   DateTime tomorrow = new DateTime.now().add(new Duration(days: 1));
@@ -193,6 +208,22 @@ class MySchedule extends StatelessWidget {
               title: new Text(event.title),
               subtitle: new Text(
                   "${event.date.month}/${event.date.day}/${event.date.year}"),
+							leading: new PopupMenuButton(
+						child: new Icon(Icons.more_vert),
+						itemBuilder: (BuildContext context) {
+							return <PopupMenuItem>[
+								new PopupMenuItem(
+									child: new Text("Move to General"),
+									value: "Move",
+								)
+							];
+						},
+						onSelected: (String t) {
+							if (t == "Move") {
+								switchScheduleToGeneral(event);
+							}
+						},
+					),//////////////////
               onTap: (){scheduleItemOnTap(event, context);},
           );
         }
@@ -219,6 +250,22 @@ class MySchedule extends StatelessWidget {
               title: new Text(event.title),
               subtitle: new Text(
                   "${event.date.month}/${event.date.day}/${event.date.year}"),
+							leading: new PopupMenuButton(
+						child: new Icon(Icons.more_vert),
+						itemBuilder: (BuildContext context) {
+							return <PopupMenuItem>[
+								new PopupMenuItem(
+									child: new Text("Move to General"),
+									value: "Move",
+								)
+							];
+						},
+						onSelected: (String t) {
+							if (t == "Move") {
+								switchScheduleToGeneral(event);
+							}
+						},
+					),//////////////////
               onTap: (){scheduleItemOnTap(event, context);},
           );
         }
@@ -248,6 +295,22 @@ class MySchedule extends StatelessWidget {
               title: new Text(event.title),
               subtitle: new Text(
                   "${event.date.month}/${event.date.day}/${event.date.year}"),
+							leading: new PopupMenuButton(
+						child: new Icon(Icons.more_vert),
+						itemBuilder: (BuildContext context) {
+							return <PopupMenuItem>[
+								new PopupMenuItem(
+									child: new Text("Move to General"),
+									value: "Move",
+								)
+							];
+						},
+						onSelected: (String t) {
+							if (t == "Move") {
+								switchScheduleToGeneral(event);
+							}
+						},
+					),//////////////////
               onTap: (){scheduleItemOnTap(event, context);},
           );
         }
@@ -274,6 +337,22 @@ class MySchedule extends StatelessWidget {
               title: new Text(event.title),
               subtitle: new Text(
                   "${event.date.month}/${event.date.day}/${event.date.year}"),
+							leading: new PopupMenuButton(
+						child: new Icon(Icons.more_vert),
+						itemBuilder: (BuildContext context) {
+							return <PopupMenuItem>[
+								new PopupMenuItem(
+									child: new Text("Move to General"),
+									value: "Move",
+								)
+							];
+						},
+						onSelected: (String t) {
+							if (t == "Move") {
+								switchScheduleToGeneral(event);
+							}
+						},
+					),//////////////////
               onTap: (){scheduleItemOnTap(event, context);},
           );
         }
@@ -318,11 +397,12 @@ class MySchedule extends StatelessWidget {
 }
 
 class MyLists extends StatelessWidget {
-  MyLists(this.myLists, this.listItems, this.onListItemChanged);
+  MyLists(this.myLists, this.listItems, this.onListItemChanged, this.switchGeneralToSchedule);
 
   List<EventItem> myLists;
   Map<EventItem, List<MyListItem>> listItems;
   ListItemsChangedCallback onListItemChanged;
+	GeneralScheduleSwitch switchGeneralToSchedule;
 
   @override
   Widget build(BuildContext context) {
@@ -332,6 +412,22 @@ class MyLists extends StatelessWidget {
           title: new Text(event.title),
           subtitle: new Text(
               "${event.date.month}/${event.date.day}/${event.date.year}"),
+					leading: new PopupMenuButton(
+						child: new Icon(Icons.more_vert),
+						itemBuilder: (BuildContext context) {
+							return <PopupMenuItem>[
+								new PopupMenuItem(
+									child: new Text("Move to Schedule"),
+									value: "Move",
+								)
+							];
+						},
+						onSelected: (String t) {
+							if (t == "Move") {
+								switchGeneralToSchedule(event);
+							}
+						},
+					),//////////////////
           onTap: () async {
             List<MyListItem> newListOfList = await Navigator
                 .of(context)
@@ -483,6 +579,7 @@ class MyListItem {
 
 typedef void ListChangedCallback(MyListItem item, bool isDone);
 typedef void ListItemsChangedCallback(EventItem event, List<MyListItem> list);
+typedef void GeneralScheduleSwitch(EventItem event);
 
 class MyListItemWidget extends StatelessWidget {
   MyListItemWidget({MyListItem item, this.isDone, this.onListChanged})
