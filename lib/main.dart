@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   final List<Tab> myTabs = <Tab>[
     new Tab(
-      text: 'Lists',
+      text: 'General',
       icon: new Icon(Icons.dehaze),
     ),
     new Tab(
@@ -170,15 +170,11 @@ class MySchedule extends StatelessWidget {
     List<MyListItem> newListOfList = await Navigator.of(context).push(new MaterialPageRoute<List<MyListItem>>(
       builder: ((BuildContext context) {
         return new ListPage(
-            listItems: /*itemLists[event]*/ <MyListItem>[
-              new MyListItem(title: "Hello"),
-              new MyListItem(title: "World"),
-              new MyListItem(title: "Hello"),
-            ],
+            listItems: itemLists[event],
           listTitle: event.title,
         );
       }),
-    )); // TODO: Finish this method
+    ));
 
     onListItemChanged(event, newListOfList);
   }
@@ -186,14 +182,13 @@ class MySchedule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> getFutureSchedule() {
-      List<Widget> futureSchedule = [
-        new ListTile(title: new Center(child: new Text("Future Schedules"))),
-      ];
+      List<Widget> futureSchedule = new List<Widget>();
 
       futureSchedule.addAll(schedule.map((EventItem event) {
-        if (event.date.day >= tomorrow.day &&
-            event.date.month >= tomorrow.month &&
-            event.date.year >= tomorrow.year) {
+        if (event.date.isAfter(today) &&
+            (event.date.day >= tomorrow.day ||
+            (event.date.month > tomorrow.month &&
+            event.date.year >= tomorrow.year))) {
           return new ListTile(
               title: new Text(event.title),
               subtitle: new Text(
@@ -204,14 +199,17 @@ class MySchedule extends StatelessWidget {
       }).toList());
 
       futureSchedule.removeWhere((Widget event) => event == null);
+      
+      futureSchedule.insert(0, new ListTile(
+				title: new Center(child: new Text("Future Pending")),
+				subtitle: (futureSchedule.length == 0) ? new Center(child: new Text("Your future is clear and covered (:")) : null,
+			));
 
       return futureSchedule;
     }
 
     List<Widget> getTodaySchedule() {
-      List<Widget> todaySchedule = [
-        new ListTile(title: new Center(child: new Text("Today's Schedules"))),
-      ];
+      List<Widget> todaySchedule = new List<Widget>();
 
       todaySchedule.addAll(schedule.map((EventItem event) {
         if (event.date.day == today.day &&
@@ -227,14 +225,17 @@ class MySchedule extends StatelessWidget {
       }).toList());
 
       todaySchedule.removeWhere((Widget widget) => widget == null);
+			
+			todaySchedule.insert(0, new ListTile(
+				title: new Center(child: new Text("Pending Today")),
+				subtitle: (todaySchedule.length == 0) ? new Center(child: new Text("Your day is cleared!")) : null,
+			));
 
       return todaySchedule;
     }
 
     List<Widget> getPastWeekSchedule() {
-      List<Widget> pastWeekSchedule = [
-        new ListTile(title: new Center(child: new Text("Past Week Schedules"))),
-      ];
+      List<Widget> pastWeekSchedule = new List<Widget>();
 
       pastWeekSchedule.addAll(schedule.map((EventItem event) {
         if (event.date.day < today.day &&
@@ -253,14 +254,17 @@ class MySchedule extends StatelessWidget {
       }).toList());
 
       pastWeekSchedule.removeWhere((Widget widget) => widget == null);
+			
+			pastWeekSchedule.insert(0, new ListTile(
+				title: new Center(child: new Text("Past Week")),
+				subtitle: (pastWeekSchedule.length == 0) ? new Center(child: new Text("You haven't done much this past week ):")) : null,
+			));
 
       return pastWeekSchedule;
     }
 
     List<Widget> getOlderSchedule() {
-      List<Widget> olderSchedule = [
-        new ListTile(title: new Center(child: new Text("Older Schedules"))),
-      ];
+      List<Widget> olderSchedule = new List<Widget>();
 
       olderSchedule.addAll(schedule.map((EventItem event) {
         if (event.date.day < beginLastWeek.day &&
@@ -276,6 +280,12 @@ class MySchedule extends StatelessWidget {
       }).toList());
 
       olderSchedule.removeWhere((Widget widget) => widget == null);
+			
+			olderSchedule.insert(0, new ListTile(
+				title: new Center(child: new Text("Older")),
+				subtitle: (olderSchedule.length == 0) ? new Center(child: new Text("")) : null,
+			));
+			
 
       return olderSchedule;
     }
@@ -328,11 +338,7 @@ class MyLists extends StatelessWidget {
                 .push(new MaterialPageRoute<List<MyListItem>>(
               builder: (BuildContext context) {
                 return new ListPage(
-                  listItems: /*itemLists[event]*/ <MyListItem>[
-                    new MyListItem(title: "Hello"),
-                    new MyListItem(title: "World"),
-                    new MyListItem(title: "Hello"),
-                  ],
+                  listItems: itemLists[event],
                   listTitle: event.title,
                 );
               },
@@ -569,7 +575,7 @@ class _ListPageState extends State<ListPage> {
                           });
                         } else {
                           Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: new Text("Your list needs a name"),
+                                content: new Text("Your List Item has no name!"),
                               ));
                         }
                       },
