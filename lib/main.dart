@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage>
     new Tab(
       text: 'Schedule',
       icon: new Icon(Icons.event),
-    )
+    ),
   ];
 
   Map<EventItem, List<MyListItem>> listItems = new Map<EventItem,
@@ -612,29 +612,29 @@ class _NewListPageState extends State<NewListPage> {
 // This tutorial includes system for changing list items' states
 
 class MyListItem {
-  const MyListItem({this.title});
+  const MyListItem({this.title, this.isDone});
   final String title;
+  final bool isDone;
 } // TODO: house the isDone inside and change all the code below to accommodate that
 
-typedef void ListChangedCallback(MyListItem item, bool isDone);
+typedef void ListChangedCallback(MyListItem item);
 typedef void ListItemsChangedCallback(EventItem event, List<MyListItem> list);
 typedef void GeneralScheduleSwitch(EventItem event);
 
 class MyListItemWidget extends StatelessWidget {
-  MyListItemWidget({MyListItem item, this.isDone, this.onListChanged})
+  MyListItemWidget({MyListItem item, this.onListChanged})
       : item = item,
         super(key: new ObjectKey(item));
 
   final MyListItem item;
-  final bool isDone;
   final ListChangedCallback onListChanged;
 
   Color _getColor(BuildContext context) {
-    return isDone ? Colors.black54 : Theme.of(context).primaryColor;
+    return item.isDone ? Colors.black54 : Theme.of(context).primaryColor;
   }
 
   TextStyle _getTextStyle(BuildContext context) {
-    if (!isDone) return null;
+    if (!item.isDone) return null;
 
     return new TextStyle(
       color: Colors.black54,
@@ -646,7 +646,7 @@ class MyListItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return new ListTile(
       onTap: () {
-        onListChanged(item, !isDone);
+        onListChanged(item);
       },
       leading: new CircleAvatar(
         backgroundColor: _getColor(context),
@@ -670,14 +670,10 @@ class ListPage extends StatefulWidget {
 class _ListPageState extends State<ListPage> {
   String _newListItemName;
   List<MyListItem> myListItems;
-  Set<MyListItem> _list = new Set<MyListItem>();
 
-  void _handleListChanged(MyListItem item, bool isDone) {
+  void _handleListChanged(MyListItem item) {
     setState(() {
-      if (isDone)
-        _list.add(item);
-      else
-        _list.remove(item);
+      myListItems[myListItems.indexOf(item)] = new MyListItem(title: item.title, isDone: !item.isDone);
     });
   }
 
@@ -711,7 +707,7 @@ class _ListPageState extends State<ListPage> {
                         if (_newListItemName != null) {
                           setState(() {
                             myListItems
-                                .add(new MyListItem(title: _newListItemName));
+                                .add(new MyListItem(title: _newListItemName, isDone: false));
                           });
                         } else {
                           Scaffold.of(context).showSnackBar(new SnackBar(
@@ -729,7 +725,6 @@ class _ListPageState extends State<ListPage> {
     widgets.addAll(myListItems.map((MyListItem item) {
       return new MyListItemWidget(
         item: item,
-        isDone: _list.contains(item),
         onListChanged: _handleListChanged,
       );
     }).toList());
