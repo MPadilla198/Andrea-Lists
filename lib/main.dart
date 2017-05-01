@@ -21,9 +21,11 @@ void main() {
   ));
 }
 
-//////
-// For Home Page that displays list and schedule
-//////
+/*
+ Things to do::::
+ 1. add sort preferences for general (Alphabetical, or reverse alphabetical, or oldest first, or newest first)
+ 2.
+ */
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -66,9 +68,14 @@ class _MyHomePageState extends State<MyHomePage>
   ];
   List<EventItem> mySchedule = [
     new EventItem(title: "Hello", date: new DateTime.now()),
-    new EventItem(title: "World", date: new DateTime.now().add(new Duration(days: 3))),
-    new EventItem(title: "DEADBEEF", date: new DateTime.now().subtract(new Duration(days: 4))),
-    new EventItem(title: "Just testies", date: new DateTime.now().subtract(new Duration(days: 12))),
+    new EventItem(
+        title: "World", date: new DateTime.now().add(new Duration(days: 3))),
+    new EventItem(
+        title: "DEADBEEF",
+        date: new DateTime.now().subtract(new Duration(days: 4))),
+    new EventItem(
+        title: "Just testies",
+        date: new DateTime.now().subtract(new Duration(days: 12))),
   ];
 
   TabController _tabController;
@@ -76,20 +83,20 @@ class _MyHomePageState extends State<MyHomePage>
   void _handleListItemsChanged(EventItem event, List<MyListItem> list) {
     listItems[event] = list;
   }
-	
-	void _switchGeneralToSchedule(EventItem event) {
-		setState(() {
-			myLists.remove(event);
-			mySchedule.add(event);
-		});
-	}
-	
-	void _switchScheduleToGeneral(EventItem event) {
-		setState(() {
-			mySchedule.remove(event);
-			myLists.add(event);
-		});
-	}
+
+  void _switchGeneralToSchedule(EventItem event) {
+    setState(() {
+      myLists.remove(event);
+      mySchedule.add(event);
+    });
+  }
+
+  void _switchScheduleToGeneral(EventItem event) {
+    setState(() {
+      mySchedule.remove(event);
+      myLists.add(event);
+    });
+  }
 
   @override
   void initState() {
@@ -126,8 +133,10 @@ class _MyHomePageState extends State<MyHomePage>
       body: new TabBarView(
         controller: _tabController,
         children: <Widget>[
-          new MyLists(myLists, listItems, _handleListItemsChanged, _switchGeneralToSchedule),
-          new MySchedule(mySchedule, listItems, _handleListItemsChanged, _switchScheduleToGeneral),
+          new MyLists(myLists, listItems, _handleListItemsChanged,
+              _switchGeneralToSchedule),
+          new MySchedule(mySchedule, listItems, _handleListItemsChanged,
+              _switchScheduleToGeneral),
         ],
       ),
       floatingActionButton: new FloatingActionButton(
@@ -161,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-class EventItem {
+class EventItem { // Should change this one day to house the MyListItems inside in a List
   const EventItem({this.title, this.date});
 
   final String title;
@@ -169,12 +178,13 @@ class EventItem {
 }
 
 class MySchedule extends StatelessWidget {
-  MySchedule(this.schedule, this.listItems, this.onListItemChanged, this.switchScheduleToGeneral);
+  MySchedule(this.schedule, this.listItems, this.onListItemChanged,
+      this.switchScheduleToGeneral);
 
   List<EventItem> schedule;
   Map<EventItem, List<MyListItem>> listItems;
   ListItemsChangedCallback onListItemChanged;
-	GeneralScheduleSwitch switchScheduleToGeneral;
+  GeneralScheduleSwitch switchScheduleToGeneral;
 
   // Instantiation of all necessary DateTimes
   DateTime tomorrow = new DateTime.now().add(new Duration(days: 1));
@@ -182,16 +192,20 @@ class MySchedule extends StatelessWidget {
   DateTime beginLastWeek = new DateTime.now().subtract(new Duration(days: 7));
 
   Future scheduleItemOnTap(EventItem event, BuildContext context) async {
-    List<MyListItem> newListOfList = await Navigator.of(context).push(new MaterialPageRoute<List<MyListItem>>(
+    List<MyListItem> newListOfList = await Navigator
+        .of(context)
+        .push(new MaterialPageRoute<List<MyListItem>>(
       builder: ((BuildContext context) {
         return new ListPage(
-            listItems: itemLists[event],
+          listItems: listItems[event],
           listTitle: event.title,
         );
       }),
     ));
 
-    onListItemChanged(event, newListOfList);
+    if (newListOfList == null) {
+      onListItemChanged(event, newListOfList);
+    }
   }
 
   @override
@@ -200,41 +214,46 @@ class MySchedule extends StatelessWidget {
       List<Widget> futureSchedule = new List<Widget>();
 
       futureSchedule.addAll(schedule.map((EventItem event) {
-        if ((event.date.isAfter(today) &&
-            event.date.day >= tomorrow.day) ||
-            (event.date.month > today.month &&
-            event.date.year >= today.year)) {
+        if ((event.date.isAfter(today) && event.date.day >= tomorrow.day) ||
+            (event.date.month > today.month && event.date.year >= today.year)) {
           return new ListTile(
-              title: new Text(event.title),
-              subtitle: new Text(
-                  "${event.date.month}/${event.date.day}/${event.date.year}"),
-							leading: new PopupMenuButton(
-						child: new Icon(Icons.more_vert),
-						itemBuilder: (BuildContext context) {
-							return <PopupMenuItem>[
-								new PopupMenuItem(
-									child: new Text("Move to General"),
-									value: "Move",
-								)
-							];
-						},
-						onSelected: (String t) {
-							if (t == "Move") {
-								switchScheduleToGeneral(event);
-							}
-						},
-					),//////////////////
-              onTap: (){scheduleItemOnTap(event, context);},
+            title: new Text(event.title),
+            subtitle: new Text(
+                "${event.date.month}/${event.date.day}/${event.date.year}"),
+            trailing: new PopupMenuButton(
+              child: new Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuItem<String>>[
+                  new PopupMenuItem(
+                    child: new Text("Move to General"),
+                    value: "Move",
+                  ),
+                ];
+              },
+              onSelected: (String t) {
+                if (t == "Move") {
+                  switchScheduleToGeneral(event);
+                }
+              },
+            ), //////////////////
+            onTap: () {
+              scheduleItemOnTap(event, context);
+            },
           );
         }
       }).toList());
 
       futureSchedule.removeWhere((Widget event) => event == null);
-      
-      futureSchedule.insert(0, new ListTile(
-				title: new Center(child: new Text("Future Pending")),
-				subtitle: (futureSchedule.length == 0) ? new Center(child: new Text("Your future is clear and covered (:")) : null,
-			));
+
+      futureSchedule.insert(
+          0,
+          new ListTile(
+            title: new Center(child: new Text("Future Pending")),
+            subtitle: (futureSchedule.length == 0)
+                ? new Center(
+                    child: new Text("Your future is clear and covered (:"))
+                : null,
+          ));
 
       return futureSchedule;
     }
@@ -247,36 +266,42 @@ class MySchedule extends StatelessWidget {
             event.date.month == today.month &&
             event.date.year == today.year) {
           return new ListTile(
-              title: new Text(event.title),
-              subtitle: new Text(
-                  "${event.date.month}/${event.date.day}/${event.date.year}"),
-							leading: new PopupMenuButton(
-						child: new Icon(Icons.more_vert),
-						itemBuilder: (BuildContext context) {
-							return <PopupMenuItem>[
-								new PopupMenuItem(
-									child: new Text("Move to General"),
-									value: "Move",
-								)
-							];
-						},
-						onSelected: (String t) {
-							if (t == "Move") {
-								switchScheduleToGeneral(event);
-							}
-						},
-					),//////////////////
-              onTap: (){scheduleItemOnTap(event, context);},
+            title: new Text(event.title),
+            subtitle: new Text(
+                "${event.date.month}/${event.date.day}/${event.date.year}"),
+            trailing: new PopupMenuButton(
+              child: new Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuItem<String>>[
+                  new PopupMenuItem(
+                    child: new Text("Move to General"),
+                    value: "Move",
+                  )
+                ];
+              },
+              onSelected: (String t) {
+                if (t == "Move") {
+                  switchScheduleToGeneral(event);
+                }
+              },
+            ), //////////////////
+            onTap: () {
+              scheduleItemOnTap(event, context);
+            },
           );
         }
       }).toList());
 
       todaySchedule.removeWhere((Widget widget) => widget == null);
-			
-			todaySchedule.insert(0, new ListTile(
-				title: new Center(child: new Text("Pending Today")),
-				subtitle: (todaySchedule.length == 0) ? new Center(child: new Text("Your day is cleared!")) : null,
-			));
+
+      todaySchedule.insert(
+          0,
+          new ListTile(
+            title: new Center(child: new Text("Pending Today")),
+            subtitle: (todaySchedule.length == 0)
+                ? new Center(child: new Text("Your day is cleared!"))
+                : null,
+          ));
 
       return todaySchedule;
     }
@@ -292,36 +317,43 @@ class MySchedule extends StatelessWidget {
             event.date.year <= today.year &&
             event.date.year >= beginLastWeek.year) {
           return new ListTile(
-              title: new Text(event.title),
-              subtitle: new Text(
-                  "${event.date.month}/${event.date.day}/${event.date.year}"),
-							leading: new PopupMenuButton(
-						child: new Icon(Icons.more_vert),
-						itemBuilder: (BuildContext context) {
-							return <PopupMenuItem>[
-								new PopupMenuItem(
-									child: new Text("Move to General"),
-									value: "Move",
-								)
-							];
-						},
-						onSelected: (String t) {
-							if (t == "Move") {
-								switchScheduleToGeneral(event);
-							}
-						},
-					),//////////////////
-              onTap: (){scheduleItemOnTap(event, context);},
+            title: new Text(event.title),
+            subtitle: new Text(
+                "${event.date.month}/${event.date.day}/${event.date.year}"),
+            trailing: new PopupMenuButton(
+              child: new Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuItem<String>>[
+                  new PopupMenuItem(
+                    child: new Text("Move to General"),
+                    value: "Move",
+                  )
+                ];
+              },
+              onSelected: (String t) {
+                if (t == "Move") {
+                  switchScheduleToGeneral(event);
+                }
+              },
+            ), //////////////////
+            onTap: () {
+              scheduleItemOnTap(event, context);
+            },
           );
         }
       }).toList());
 
       pastWeekSchedule.removeWhere((Widget widget) => widget == null);
-			
-			pastWeekSchedule.insert(0, new ListTile(
-				title: new Center(child: new Text("Past Week")),
-				subtitle: (pastWeekSchedule.length == 0) ? new Center(child: new Text("You haven't done much this past week ):")) : null,
-			));
+
+      pastWeekSchedule.insert(
+          0,
+          new ListTile(
+            title: new Center(child: new Text("Past Week")),
+            subtitle: (pastWeekSchedule.length == 0)
+                ? new Center(
+                    child: new Text("You haven't done much this past week ):"))
+                : null,
+          ));
 
       return pastWeekSchedule;
     }
@@ -334,37 +366,42 @@ class MySchedule extends StatelessWidget {
             event.date.month <= beginLastWeek.month &&
             event.date.year <= beginLastWeek.year) {
           return new ListTile(
-              title: new Text(event.title),
-              subtitle: new Text(
-                  "${event.date.month}/${event.date.day}/${event.date.year}"),
-							leading: new PopupMenuButton(
-						child: new Icon(Icons.more_vert),
-						itemBuilder: (BuildContext context) {
-							return <PopupMenuItem>[
-								new PopupMenuItem(
-									child: new Text("Move to General"),
-									value: "Move",
-								)
-							];
-						},
-						onSelected: (String t) {
-							if (t == "Move") {
-								switchScheduleToGeneral(event);
-							}
-						},
-					),//////////////////
-              onTap: (){scheduleItemOnTap(event, context);},
+            title: new Text(event.title),
+            subtitle: new Text(
+                "${event.date.month}/${event.date.day}/${event.date.year}"),
+            trailing: new PopupMenuButton(
+              child: new Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuItem<String>>[
+                  new PopupMenuItem(
+                    child: new Text("Move to General"),
+                    value: "Move",
+                  )
+                ];
+              },
+              onSelected: (String t) {
+                if (t == "Move") {
+                  switchScheduleToGeneral(event);
+                }
+              },
+            ), //////////////////
+            onTap: () {
+              scheduleItemOnTap(event, context);
+            },
           );
         }
       }).toList());
 
       olderSchedule.removeWhere((Widget widget) => widget == null);
-			
-			olderSchedule.insert(0, new ListTile(
-				title: new Center(child: new Text("Older")),
-				subtitle: (olderSchedule.length == 0) ? new Center(child: new Text("")) : null,
-			));
-			
+
+      olderSchedule.insert(
+          0,
+          new ListTile(
+            title: new Center(child: new Text("Older")),
+            subtitle: (olderSchedule.length == 0)
+                ? new Center(child: new Text("Just wait for this to fill to see how much you've accomplished (((:"))
+                : null,
+          ));
 
       return olderSchedule;
     }
@@ -397,12 +434,13 @@ class MySchedule extends StatelessWidget {
 }
 
 class MyLists extends StatelessWidget {
-  MyLists(this.myLists, this.listItems, this.onListItemChanged, this.switchGeneralToSchedule);
+  MyLists(this.myLists, this.listItems, this.onListItemChanged,
+      this.switchGeneralToSchedule);
 
   List<EventItem> myLists;
   Map<EventItem, List<MyListItem>> listItems;
   ListItemsChangedCallback onListItemChanged;
-	GeneralScheduleSwitch switchGeneralToSchedule;
+  GeneralScheduleSwitch switchGeneralToSchedule;
 
   @override
   Widget build(BuildContext context) {
@@ -412,35 +450,37 @@ class MyLists extends StatelessWidget {
           title: new Text(event.title),
           subtitle: new Text(
               "${event.date.month}/${event.date.day}/${event.date.year}"),
-					leading: new PopupMenuButton(
-						child: new Icon(Icons.more_vert),
-						itemBuilder: (BuildContext context) {
-							return <PopupMenuItem>[
-								new PopupMenuItem(
-									child: new Text("Move to Schedule"),
-									value: "Move",
-								)
-							];
-						},
-						onSelected: (String t) {
-							if (t == "Move") {
-								switchGeneralToSchedule(event);
-							}
-						},
-					),//////////////////
+          trailing: new PopupMenuButton(
+            child: new Icon(Icons.more_vert),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuItem<String>>[
+                new PopupMenuItem(
+                  child: new Text("Move to Schedule"),
+                  value: "Move",
+                )
+              ];
+            },
+            onSelected: (String t) {
+              if (t == "Move") {
+                switchGeneralToSchedule(event);
+              }
+            },
+          ), //////////////////
           onTap: () async {
             List<MyListItem> newListOfList = await Navigator
                 .of(context)
                 .push(new MaterialPageRoute<List<MyListItem>>(
               builder: (BuildContext context) {
                 return new ListPage(
-                  listItems: itemLists[event],
+                  listItems: listItems[event],
                   listTitle: event.title,
                 );
               },
             ));
 
-            onListItemChanged(event, newListOfList);
+            if (newListOfList != null) {
+              onListItemChanged(event, newListOfList);
+            }
           },
         );
       }).toList(),
@@ -568,14 +608,13 @@ class _NewListPageState extends State<NewListPage> {
   }
 }
 
-//TODO: Everything below this comment (It creates a page that allows the user to view the items within their individual lists
 // NOTE: Code below is mostly borrowed from https://flutter.io/widgets-intro/ .
 // This tutorial includes system for changing list items' states
 
 class MyListItem {
   const MyListItem({this.title});
   final String title;
-}
+} // TODO: house the isDone inside and change all the code below to accommodate that
 
 typedef void ListChangedCallback(MyListItem item, bool isDone);
 typedef void ListItemsChangedCallback(EventItem event, List<MyListItem> list);
@@ -645,7 +684,11 @@ class _ListPageState extends State<ListPage> {
   @override
   void initState() {
     super.initState();
+
     myListItems = widget.listItems;
+    if (myListItems == null) {
+      myListItems = new List<MyListItem>();
+    }
   }
 
   @override
@@ -672,7 +715,8 @@ class _ListPageState extends State<ListPage> {
                           });
                         } else {
                           Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: new Text("Your List Item has no name!"),
+                                content:
+                                    new Text("Your List Item has no name!"),
                               ));
                         }
                       },
