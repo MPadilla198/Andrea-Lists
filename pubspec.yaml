@@ -2,6 +2,7 @@ name: Andrea_Lists
 description: A new flutter project.
 
 dependencies:
+  json_object: ^1.0.19
   flutter:
     sdk: flutter
 

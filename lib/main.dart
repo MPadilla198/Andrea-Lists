@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:json_object/json_object.dart';
+
 void main() {
   runApp(new MaterialApp(
     title: 'Lists',
@@ -170,8 +172,10 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-class EventItem { // Should change this one day to house the MyListItems inside in a List
-  const EventItem({this.title, this.date});
+class EventItem extends JsonObject {
+  // Should change this one day to house the MyListItems inside in a List
+  EventItem({this.title, this.date})
+      : super();
 
   final String title;
   final DateTime date;
@@ -203,7 +207,7 @@ class MySchedule extends StatelessWidget {
       }),
     ));
 
-    if (newListOfList == null) {
+    if (newListOfList != null) {
       onListItemChanged(event, newListOfList);
     }
   }
@@ -310,12 +314,11 @@ class MySchedule extends StatelessWidget {
       List<Widget> pastWeekSchedule = new List<Widget>();
 
       pastWeekSchedule.addAll(schedule.map((EventItem event) {
-        if (event.date.day < today.day &&
-            event.date.day >= beginLastWeek.day &&
+        if (event.date.isBefore(today) && event.date.day >= beginLastWeek.day( // TODO: Have to fix this shit
             event.date.month <= today.month &&
             event.date.month >= beginLastWeek.month &&
             event.date.year <= today.year &&
-            event.date.year >= beginLastWeek.year) {
+            event.date.year >= beginLastWeek.year)) {
           return new ListTile(
             title: new Text(event.title),
             subtitle: new Text(
@@ -399,7 +402,9 @@ class MySchedule extends StatelessWidget {
           new ListTile(
             title: new Center(child: new Text("Older")),
             subtitle: (olderSchedule.length == 0)
-                ? new Center(child: new Text("Just wait for this to fill to see how much you've accomplished (((:"))
+                ? new Center(
+                    child: new Text(
+                        "Just wait for this to fill to see how much you've accomplished (((:"))
                 : null,
           ));
 
@@ -611,11 +616,13 @@ class _NewListPageState extends State<NewListPage> {
 // NOTE: Code below is mostly borrowed from https://flutter.io/widgets-intro/ .
 // This tutorial includes system for changing list items' states
 
-class MyListItem {
-  const MyListItem({this.title, this.isDone});
+class MyListItem extends JsonObject {
+  MyListItem({this.title, this.isDone})
+      : super();
+
   final String title;
   final bool isDone;
-} // TODO: house the isDone inside and change all the code below to accommodate that
+}
 
 typedef void ListChangedCallback(MyListItem item);
 typedef void ListItemsChangedCallback(EventItem event, List<MyListItem> list);
@@ -673,7 +680,8 @@ class _ListPageState extends State<ListPage> {
 
   void _handleListChanged(MyListItem item) {
     setState(() {
-      myListItems[myListItems.indexOf(item)] = new MyListItem(title: item.title, isDone: !item.isDone);
+      myListItems[myListItems.indexOf(item)] =
+          new MyListItem(title: item.title, isDone: !item.isDone);
     });
   }
 
@@ -706,8 +714,8 @@ class _ListPageState extends State<ListPage> {
                       onPressed: () {
                         if (_newListItemName != null) {
                           setState(() {
-                            myListItems
-                                .add(new MyListItem(title: _newListItemName, isDone: false));
+                            myListItems.add(new MyListItem(
+                                title: _newListItemName, isDone: false));
                           });
                         } else {
                           Scaffold.of(context).showSnackBar(new SnackBar(
